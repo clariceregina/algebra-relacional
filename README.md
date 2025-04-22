@@ -28,6 +28,10 @@ Este repositório contém exemplos de uso de **álgebra relacional** para consul
 - **Autojunção com Renomeação**  
   Para comparar dados dentro da mesma tabela, como vendedores com mais experiência que outro.  
 
+![Consulta Nota Livros](consultaNotaLivros.png)
+
+![Consulta Nota Livros 2](consultaNotaLivros2.png)
+
 ---
 
 ### 💡 Observação:
