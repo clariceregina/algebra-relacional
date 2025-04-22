@@ -1,0 +1,94 @@
+-- SELEÇÃO (σ) filtrar linha livros recomendados com nota média maior ou igual a 5
+σ nota_media >= 4.5 (livrosRecomendados)
+
+-- SELEÇÃO (σ) filtrar linha livros com mais de 5 unidades em estoque e preço menor que 50 reais
+σ qtd_estoque > 5 ∧ preco < 50 (livros)
+
+-- SELEÇÃO (σ) filtrar linha livros cuja autora seja Colleen Houck ou tenha preço menor que 20 reais
+σ autor = 'Colleen Houck' ∨ preco < 20 (livros)
+
+-- PROJEÇÃO (π) filtrar coluna nome vendedores
+π nome (vendedores)
+
+-- PROJEÇÃO (π) filtrar coluna nome vendedores
+π nome (vendedores)
+
+-- PROJEÇÃO (π) filtrar coluna nome e anos de experiência dos vendedores
+π nome, anos_exp (vendedores)
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) filtrar colunas nome e email da tabela de clientes e filtrar linhas dos que vivem na cidade Rio de Janeiro
+π nome, email (σ cidade = 'Rio de Janeiro' (clientes))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Quais são os nomes dos livros que possuem preço maior que R$50?
+π nome_livro (σ preco > 50 (livros))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Quais são os vendedores que possuem mais de 5 anos de experiência?
+π nome (σ anos_exp > 5 (vendedores))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Quais são os códigos de livros recomendados pela revista ‘BestBooks Magazine’?
+π id_livro (σ fonte_recomendacao = 'BestBooks Magazine' (livrosRecomendados))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Quais são os livros com estoque menor que 20 unidades?
+π nome_livro (σ qtd_estoque < 20 (livros))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Quais são os códigos dos livros mais vendidos durante o ano de 2021?
+π id_livro (σ ano = 2021 (livroMaisVendidos))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Quais são os livros com preço entre R$30 e R$50?
+π nome_livro, preco (σ preco ≥ 30 ∧ preco ≤ 50 (livros))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Existe algum livros sem exemplar em estoque? Quais?
+π nome_livro (σ qtd_estoque = 0 (livros))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Quais são os livros que custam mais de R$ 50 e contém mais de 5 unidades no estoque?
+π nome_livro, preco, qtd_estoque (σ preco > 50 ∧ qtd_estoque > 5 (livros))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Quais livros atendem os requisitos do amigo oculto do cliente André: ser um livro de George Orwell ou de qualquer outra autoria que seja mais caro que 30 reais?
+π nome_livro, autor, preco (σ autor = 'George Orwell' ∨ preco ≥ 30 (livros))
+
+-- PROJEÇÃO (π) e SELEÇÃO (σ) Qual o nome e preço dos livros que custam até 19 reais?
+π nome_livro, preco (σ preco ≤ 19 (livros))
+
+-- CROSS JOIN (⨯) Realize todas as combinações possíveis entre nomes e livros e clientes
+π livros.nome_livro, clientes.nome (livros ⨯ clientes)
+
+-- CROSS JOIN (⨯) Exibir o nome da pessoa vendedora que cuidou de cada pedido.
+π id_pedido, id_vendedor_vendas, id_vendedor, nome (σ id_vendedor_vendas = id_vendedor (vendas x vendedores))
+
+π id_pedido, id_vendedor_vendas, id_vendedor, nome (vendas ⨝ (id_vendedor_vendas = id_vendedor) vendedores)
+
+-- NATURAL JOIN (⨝) Exibir o nome dos livros vendidos em cada pedido
+π id_pedido, id_livro, nome_livro (vendas ⨝ livros)
+
+-- NATURAL JOIN (⨝) Quais livros da “Colleen Houck” venderam mais de 3 exemplares em um único pedido?
+σ livros.autor = 'Colleen Houck' (π id_pedido, nome_livro, qtd_vendida, autor (livros ⨝ qtd_vendida > 3 ∧ livros.id_livro = vendas.id_livro vendas))
+
+-- NATURAL JOIN (⨝) Quais são os livros que tiveram vendas acima de 10 unidades em um único pedido?
+π nome_livro, qtd_vendida (livros ⨝ livros.id_livro = vendas.id_livro ∧ qtd_vendida > 10 vendas)
+
+-- NATURAL JOIN (⨝) Qual o nome dos livros mais recomendados com nota média superior a 4.3?
+π nome_livro, nota_media (livros ⨝ nota_media > 4.3 ∧ livros.id_livro = livrosRecomendados.id_livro livrosRecomendados)
+
+-- RIGHT JOIN (⟖) Existe alguma pessoa vendedora que não realizou nenhuma venda?
+σ id_vendedor_vendas = null (π id_vendedor_vendas, id_vendedor, nome (vendas ⟖ id_vendedor_vendas = id_vendedor vendedores))
+
+-- UNION (∪) Quais são os livros mais vendidos ou mais recomendados?
+π id_livro (livrosMaisVendidos) ∪ π id_livro (livrosRecomendados)
+
+-- INTERSECT (∩) Quais são os livros mais vendidos e mais recomendados?
+π id_livro, nome_livro ((π id_livro (livrosMaisVendidos) ∩ π id_livro (livrosRecomendados)) ⨝ livros)
+
+-- SUBTRACTION (-) Quais livros estão no cadastro do Clube do Livro, mas não foram vendidos?
+π id_livro (livros) - π id_livro (vendas)
+
+σ qtd_vendida = null (π id_livro, nome_livro, qtd_vendida (livros ⟕ vendas))
+
+π id_livro, nome_livro, qtd_vendida (σ qtd_vendida = null (livros ⟕ vendas))
+
+-- Pessoas candidatas para trabalhar com a 'Camila Santos' que possuem mais experiência que ela
+(σ V.anos_exp < vendedores.anos_exp (σ V.nome = 'Camila Santos' (ρ V vendedores x vendedores)))
+
+σ V.anos_exp < vendedores.anos_exp ∧ V.nome = 'Camila Santos' (ρ V vendedores x vendedores)
+
+-- Renomear coluna id_vendedor_vendas para id_vendedor
+ρ id_vendedor_vendas → id_vendedor (vendas)
